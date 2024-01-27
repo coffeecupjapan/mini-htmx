@@ -1,0 +1,56 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>HTML Sample1</title>
+    <script src="./htmx.js"></script>
+</head>
+<body>
+    <h1>Target Sample</h1>
+    <h2>シンプルな例</h2>
+    <p id="target">クリックしたらここが変わるよ
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="#target" hx-trigger="click">クリック</button>
+    
+    <h2>this</h2>
+    <p id="target">クリックしたらボタンが変わるよ
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="this" hx-trigger="click">クリック</button>
+    
+    <h2>Closest CSSセレクタ</h2>
+    <div>
+      <p>hoge</p>
+      <div>
+        <p>クリックしたらこことボタンが変わるよ</p>
+        <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="closest div" hx-trigger="click">クリック</button>
+      </div>
+    </div>
+    
+    <h2>Find CSSセレクタ</h2>
+    <p id="target">hoge
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="find p" hx-trigger="click">
+      <p>ここが変わるよ</p>クリック
+    </button>
+    
+    <h2>Previous CSSセレクタ</h2>
+    <p id="target">クリックしたらここが変わるよ
+    </p>
+    <p id="target2">hoge
+    </p>
+    
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="previous #target" hx-trigger="click">クリック</button>
+    <p id="target">fuga
+    </p>
+    
+    <h2>Next CSSセレクタ</h2>
+    <p id="target">hoge
+    </p>
+    <p id="target2">fuga
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="next #target2" hx-trigger="click">クリック</button>
+    <p id="target">foo
+    </p>
+    <p id="target2">クリックしたらここが変わるよ
+    </p>
+</body>
+</html>

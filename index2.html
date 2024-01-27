@@ -1,0 +1,24 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>HTML Sample1</title>
+    <script src="./htmx_sample.js"></script>
+</head>
+<body>
+    <h1>Target Sample</h1>
+    <h2>シンプルな例</h2>
+    <p id="target">load時に変わる</p>
+    <button hx-target="#target" hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-trigger="load">
+        load時に上のテキストが変わる
+    </button>
+
+    <h2>Click Sample</h2>
+    <p id="target1">クリックしたらここが変わるよ</p>
+    <button hx-target="#target1" hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-trigger="click">
+        クリック
+    </button>
+
+    <h2>Change Sample</h2>
+    <p id="target2">Inputの内容が変わるとここが変わるよ</p>
+    <input type="text" placeholder="何か入力" hx-target="#target2" hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-trigger="change" />
+</body>

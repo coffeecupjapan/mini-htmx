@@ -1,0 +1,26 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>HTML Sample1</title>
+    <script src="./htmx_sample.js"></script>
+</head>
+<body>
+    <h1>Target Sample</h1>
+    <h2>シンプルな例</h2>
+    <p id="target">クリックしたらここが変わるよ
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="#target" hx-trigger="click">クリック</button>
+    
+    <h2>this</h2>
+    <p id="target">クリックしたらボタンが変わるよ
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="this" hx-trigger="click">クリック</button>
+    
+    <h2>Find CSSセレクタ</h2>
+    <p id="target">hoge
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="find p" hx-trigger="click">
+      <p class="p">ここが変わるよ</p>クリック
+    </button>
+</body>
+</html>
