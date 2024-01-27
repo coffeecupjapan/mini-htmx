@@ -39,11 +39,7 @@ function parseMethodAttribute(ele) {
 function parseTriggerAttribute(ele) {
     const triggerContent = ele.getAttribute("hx-trigger");
     const triggerEles = ["load", "click", "change"];
-    const triggerEleWithTarget = "revealed";
     if (triggerEles.includes(triggerContent)) return triggerContent;
-    if (triggerEles.slice(0, 8) === triggerEleWithTarget) {
-        return triggerEleWithTarget;
-    }
     return "load";
 }
 function parseSwapAttribute(ele) {
