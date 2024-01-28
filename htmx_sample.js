@@ -7,7 +7,7 @@
 // hx-trigger
 //   -> click / load / change
 // hx-swap
-//   -> innerHTML / beforebegin / beforeend / afterbegin / afterend
+//   -> innerHTML / outerHTML / beforebegin / beforeend / afterbegin / afterend
 
 function findAllTriggers(ele) {
     const result = ele.querySelectorAll("[hx-trigger]");
@@ -44,7 +44,7 @@ function parseTriggerAttribute(ele) {
 }
 function parseSwapAttribute(ele) {
     const swapContent = ele.getAttribute("hx-swap");
-    const swapEles = ["innerHTML", "beforebegin", "beforeend", "afterbegin", "afterend"];
+    const swapEles = ["innerHTML", "outerHTML", "beforebegin", "beforeend", "afterbegin", "afterend"];
     if (swapEles.includes(swapContent)) return swapContent;
     return "innerHTML";
 }
@@ -56,6 +56,8 @@ function generateEvent(ele, target, method, trigger, swap) {
         const stringifyJson = JSON.stringify(json);
         if (swap === "innerHTML") {
             target.innerHTML = stringifyJson;
+        } else if (swap === "outerHTML") {
+            target.outerHTML = stringifyJson;
         } else {
             target.insertAdjacentHTML(swap, stringifyJson);
         }
