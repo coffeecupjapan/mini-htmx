@@ -5,9 +5,11 @@
 // hx-target
 //   -> # / this / find(first selector)
 // hx-trigger
-//   -> click / load / change
+//   -> click / load / change / revealed
 // hx-swap
 //   -> innerHTML / outerHTML / beforebegin / beforeend / afterbegin / afterend
+
+let windowIsScrolling = false;
 
 function findAllTriggers(ele) {
     const result = ele.querySelectorAll("[hx-trigger]");
@@ -38,7 +40,7 @@ function parseMethodAttribute(ele) {
 }
 function parseTriggerAttribute(ele) {
     const triggerContent = ele.getAttribute("hx-trigger");
-    const triggerEles = ["load", "click", "change"];
+    const triggerEles = ["load", "click", "change", "revealed"];
     if (triggerEles.includes(triggerContent)) return triggerContent;
     return "load";
 }
@@ -47,6 +49,30 @@ function parseSwapAttribute(ele) {
     const swapEles = ["innerHTML", "outerHTML", "beforebegin", "beforeend", "afterbegin", "afterend"];
     if (swapEles.includes(swapContent)) return swapContent;
     return "innerHTML";
+}
+function generateRevealEvent(eles) {
+    document.addEventListener("scroll", () => {
+        windowIsScrolling = true;
+    });
+    eles.forEach((ele) => {
+        const target = parseTargetAttribute(ele);
+        const method = parseMethodAttribute(ele);
+        const trigger = parseTriggerAttribute(ele);
+        const swap = parseSwapAttribute(ele);
+        generateEvent(ele, target, method, trigger, swap);
+    })
+    setInterval(() => {
+        if (windowIsScrolling) {
+            windowIsScrolling = false;
+            eles.forEach((ele) => {
+                const rect = ele.getBoundingClientRect();
+                const eleTop = rect.top;
+                const eleBottom = rect.bottom;
+                const isScrolledIntoView = eleTop < window.innerHeight & eleBottom > 0;
+                if (isScrolledIntoView) ele.dispatchEvent(new Event("revealed"));
+            })
+        }
+    }, 200)
 }
 function generateEvent(ele, target, method, trigger, swap) {
     ele.addEventListener(trigger, async() => {
@@ -69,11 +95,14 @@ function generateEvent(ele, target, method, trigger, swap) {
 
 document.addEventListener("DOMContentLoaded", () => {
     const allEles = findAllTriggers(document.body);
+    const revealEles = Array.from(allEles).filter((ele) => ele.getAttribute("hx-trigger") === "revealed");
+    if (revealEles.length) generateRevealEvent(revealEles)
     allEles.forEach((ele) => {
         const target = parseTargetAttribute(ele);
         const method = parseMethodAttribute(ele);
         const trigger = parseTriggerAttribute(ele);
         const swap = parseSwapAttribute(ele);
+        if (trigger === "revealed") return;
         generateEvent(ele, target, method, trigger, swap);
     });
 });
