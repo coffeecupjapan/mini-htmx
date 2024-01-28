@@ -40,7 +40,7 @@ function parseMethodAttribute(ele) {
 }
 function parseTriggerAttribute(ele) {
     const triggerContent = ele.getAttribute("hx-trigger");
-    const triggerEles = ["load", "click", "change", "revealed"];
+    const triggerEles = ["load", "click", "change", "revealed", "intersect"];
     if (triggerEles.includes(triggerContent)) return triggerContent;
     return "load";
 }
@@ -74,6 +74,21 @@ function generateRevealEvent(eles) {
         }
     }, 200)
 }
+function generateIntersectEvent(eles) {
+    eles.forEach((ele) => {
+        const target = parseTargetAttribute(ele);
+        const method = parseMethodAttribute(ele);
+        const trigger = parseTriggerAttribute(ele);
+        const swap = parseSwapAttribute(ele);
+        generateEvent(ele, target, method, trigger, swap);
+    })
+    const observer = new IntersectionObserver(function(entries){
+        entries.forEach((entry, index) => {
+            if (entry.isIntersecting) eles[index].dispatchEvent(new Event("intersect"));
+        })
+    });
+    eles.forEach((ele) => observer.observe(ele));
+}
 function generateEvent(ele, target, method, trigger, swap) {
     ele.addEventListener(trigger, async() => {
         if (!method[1]) return;
@@ -95,14 +110,19 @@ function generateEvent(ele, target, method, trigger, swap) {
 
 document.addEventListener("DOMContentLoaded", () => {
     const allEles = findAllTriggers(document.body);
+    // revealed events
     const revealEles = Array.from(allEles).filter((ele) => ele.getAttribute("hx-trigger") === "revealed");
-    if (revealEles.length) generateRevealEvent(revealEles)
+    if (revealEles.length) generateRevealEvent(revealEles);
+    // intersect events
+    const intersectEles = Array.from(allEles).filter((ele) => ele.getAttribute("hx-trigger") === "intersect");
+    if (intersectEles.length) generateIntersectEvent(intersectEles);
+    // common events
     allEles.forEach((ele) => {
+        const trigger = parseTriggerAttribute(ele);
+        if (["revealed", "intersect"].includes(trigger)) return;
         const target = parseTargetAttribute(ele);
         const method = parseMethodAttribute(ele);
-        const trigger = parseTriggerAttribute(ele);
         const swap = parseSwapAttribute(ele);
-        if (trigger === "revealed") return;
         generateEvent(ele, target, method, trigger, swap);
     });
 });
