@@ -3,11 +3,13 @@
 //
 // hx-get, hx-post
 // hx-target
-//   -> # / this / find(first selector)
+//   -> # / this / find(first selector) / next / previous
 // hx-trigger
-//   -> click / load / change / revealed
+//   -> click / load / change / revealed / intersect
 // hx-swap
 //   -> innerHTML / outerHTML / beforebegin / beforeend / afterbegin / afterend
+// hx-json
+//   -> access to json element
 
 let windowIsScrolling = false;
 
@@ -74,6 +76,32 @@ function parseSwapAttribute(ele) {
     if (swapEles.includes(swapContent)) return swapContent;
     return "innerHTML";
 }
+function parseJsonElement(ele) {
+    const jsonElement = ele.getAttribute("hx-json");
+    if (!jsonElement) return null;
+    const isJsonArrayObjectCorrect = jsonElement.split(/(\[[^\[\]]*\])/g).filter((seg) => {
+        return seg.slice(0,1) === "[" && seg.slice(-1) === "]"}).map((seg) => {
+        return seg.slice(1, -1)}).every((seg) => {
+        return !isNaN(parseInt(seg)) ||
+               (seg.slice(0, 1) === "\"" && seg.slice(-1) === "\"" && !seg.slice(1, -1).includes("\"") )||
+               (seg.slice(0, 1) === "'" && seg.slice(-1) === "'" && !seg.slice(1, -1).includes("'") )
+    });
+    if (!isJsonArrayObjectCorrect) return null;
+    const jsonSplitArrayObject = jsonElement.split(/(\[(?:[1-9]\d*|0|["'][a-zA-Z][a-zA-Z0-9_]*["'])\])/g);
+    const parsedJsonElement = jsonSplitArrayObject.map((seg) => {
+        if ((seg.startsWith("[\"") && seg.endsWith("\"]")) || (seg.startsWith("['") && seg.endsWith("']"))) {
+            return seg.slice(2, -2);
+        }
+        if (seg.startsWith("[") && seg.endsWith("]") && !isNaN(parseInt(seg.slice(1, -1)))) {
+            return parseInt(seg.slice(1, -1));
+        }
+        if (seg.match(/^([\.a-zA-Z][\.a-zA-Z0-9_]*)$/g)) {
+            return seg.split(".");
+        }
+        return null;
+    }).flat().filter((seg) => (Boolean(seg) || seg === 0));
+    return parsedJsonElement;
+}
 function generateRevealEvent(eles) {
     document.addEventListener("scroll", () => {
         windowIsScrolling = true;
@@ -83,7 +111,8 @@ function generateRevealEvent(eles) {
         const method = parseMethodAttribute(ele);
         const trigger = parseTriggerAttribute(ele);
         const swap = parseSwapAttribute(ele);
-        generateEvent(ele, target, method, trigger, swap);
+        const json = parseJsonElement(ele);
+        generateEvent(ele, target, method, trigger, swap, json);
     })
     setInterval(() => {
         if (windowIsScrolling) {
@@ -104,7 +133,8 @@ function generateIntersectEvent(eles) {
         const method = parseMethodAttribute(ele);
         const trigger = parseTriggerAttribute(ele);
         const swap = parseSwapAttribute(ele);
-        generateEvent(ele, target, method, trigger, swap);
+        const json = parseJsonElement(ele);
+        generateEvent(ele, target, method, trigger, swap, json);
     })
     const observer = new IntersectionObserver(function(entries){
         entries.forEach((entry, index) => {
@@ -113,12 +143,18 @@ function generateIntersectEvent(eles) {
     });
     eles.forEach((ele) => observer.observe(ele));
 }
-function generateEvent(ele, target, method, trigger, swap) {
+function generateEvent(ele, target, method, trigger, swap, jsonElements) {
     ele.addEventListener(trigger, async() => {
         if (!method[1]) return;
         const result = await fetch(method[1], {method: method[0]});
-        const json = await result.json();
-        const stringifyJson = JSON.stringify(json);
+        let json = await result.json();
+        let stringifyJson = JSON.stringify(json);
+        if (jsonElements && jsonElements.length) {
+            jsonElements.forEach((jsonEle) => {
+                json = json[jsonEle];
+            })
+            stringifyJson = json;
+        }
         if (swap === "innerHTML") {
             target.innerHTML = stringifyJson;
         } else if (swap === "outerHTML") {
@@ -147,6 +183,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const target = parseTargetAttribute(ele);
         const method = parseMethodAttribute(ele);
         const swap = parseSwapAttribute(ele);
-        generateEvent(ele, target, method, trigger, swap);
+        const json = parseJsonElement(ele);
+        generateEvent(ele, target, method, trigger, swap, json);
     });
 });

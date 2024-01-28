@@ -1,0 +1,47 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+    <title>HTML Sample1</title>
+    <script src="./htmx_sample.js"></script>
+</head>
+<body>
+    <h1>Target Sample</h1>
+    <h2>シンプルな例</h2>
+    <p id="target">クリックしたらここが変わるよ
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="#target" hx-trigger="click" hx-json="userId">クリック</button>
+    
+    <h2>this</h2>
+    <p id="target">クリックしたらボタンが変わるよ
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="this" hx-trigger="click" hx-json="title">クリック</button>
+    
+    <h2>Find CSSセレクタ</h2>
+    <p id="target">hoge
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="find p" hx-trigger="click" hx-json="id">
+      <p class="p">ここが変わるよ</p>クリック
+    </button>
+
+    <h2>Previous CSSセレクタ</h2>
+    <p class="target">クリックしたらここが変わるよ
+    </p>
+    <p class="target2">hoge
+    </p>
+    
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="previous target" hx-trigger="click">クリック</button>
+    <p class="target">fuga
+    </p>
+    
+    <h2>Next CSSセレクタ</h2>
+    <p class="target">hoge
+    </p>
+    <p class="target2">fuga
+    </p>
+    <button hx-get="https://jsonplaceholder.typicode.com/posts/1" hx-target="next target2" hx-trigger="click">クリック</button>
+    <p class="target">foo
+    </p>
+    <p class="target2">クリックしたらここが変わるよ
+    </p>
+</body>
+</html>
