@@ -23,6 +23,30 @@ function parseTargetAttribute(ele) {
         return targetEle;
     } else if (targetContent === "this") {
         return ele;
+    } else if (targetContent === "next") {
+        return ele.nextElementSibling;
+    } else if (targetContent === "previous") {
+        return ele.previousElementSibling;
+    } else if (targetContent.slice(0, 5) === "next ") {
+        const className = targetContent.slice(5);
+        const targetEles = document.getElementsByClassName(className);
+        let targetResult = null;
+        if (targetEles.length) {
+            Array.from(targetEles).forEach((targetEle) => {
+                if (targetEle.compareDocumentPosition(ele) & Node.DOCUMENT_POSITION_PRECEDING) targetResult = targetEle
+            })
+        }
+        return targetResult;
+    } else if (targetContent.slice(0, 9) === "previous ") {
+        const className = targetContent.slice(9);
+        const targetEles = document.getElementsByClassName(className);
+        let targetResult = null;
+        if (targetEles.length) {
+            Array.from(targetEles).forEach((targetEle) => {
+                if (targetEle.compareDocumentPosition(ele) & Node.DOCUMENT_POSITION_FOLLOWING) targetResult = targetEle
+            })
+        }
+        return targetResult;
     } else if (targetContent.slice(0, 5) === "find ") {
         const className = targetContent.slice(5);
         const targetEle = document.getElementsByClassName(className);
